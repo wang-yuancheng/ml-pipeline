@@ -1,23 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Flask App{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='custom.css') }}">
-</head>
-<body>
-  <header>
-    <h1>{% block header %}Select the type of Machine Learning Pipeline{% endblock %}</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Flask App{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='custom.css') }}"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>
+        {% block header %}UPDATE: AUTOML has stopped functioning. Select
+        CustomML{% endblock %}
+      </h1>
+    </header>
     <main>
       {% block content %}
-        <form method="POST" action="{{ url_for('base.home') }}" class="home-form" id="home-form">
-          <button type="submit" name="ml" value="auto">AutoML</button>
-          <button type="submit" name="ml" value="custom">CustomML</button>
-        </form>
+      <form
+        method="POST"
+        action="{{ url_for('base.home') }}"
+        class="home-form"
+        id="home-form"
+      >
+        <button type="submit" name="ml" value="auto">AutoML</button>
+        <button type="submit" name="ml" value="custom">CustomML</button>
+      </form>
       {% endblock %}
     </main>
-</body>
+  </body>
 </html>

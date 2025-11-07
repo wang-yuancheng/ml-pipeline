@@ -1,35 +1,45 @@
-# Automated Machine Learning Pipeline
+# Machine Learning Pipeline
 
-This repository contains code and materials for an end-to-end Flask + Celery Machine Learning application<br><br>
-Click [here](data/EDA%20and%20Model%20Comparison/README.md#data-science-workflow) to view the **data science workflow**.<br>
-Click [here](app/README.md#model-integration-with-flask) to view the **model integration with Flask**.<br>
-Click [here](app/README.md#full-scikit-learn-pipeline) to view the **end-to-end ML pipeline**.
+This repository contains code and materials for a web app that predicts cardiovascular disease risk based on user input.
 
-## Key Features
+### Data Science Workflow
 
-| Component           | Functionality                                                  | Impact                                              |
-| ------------------- | -------------------------------------------------------------- | --------------------------------------------------- |
-| **AutoML pipeline** | Upload CSV → pick target → Celery trains and saves `model.pkl` | Keeps UI fast while training runs in the background |
-| **Custom model**    | Pre-trained MLP (`custompipeline.pkl`) loaded once at startup  | Fast predictions with no delay                      |
-| **Dynamic form**    | Form fields auto-generated from selected features              | Ensures input matches model’s expectations          |
-| **Modular routes**  | Routes split into `base/`, `custom/`, `auto/` blueprints       | Cleaner code and easier to maintain                 |
+The full workflow walks through the end-to-end development of the prediction model, including:
+
+- **Dataset Overview:** Understanding the cardiovascular dataset and problem framing
+- **Data Preparation:** Cleaning, transforming, and engineering medically relevant features
+- **Exploratory Data Analysis:** Investigating patterns across age, BMI, blood pressure, cholesterol, glucose levels, and lifestyle factors
+- **Feature Selection:** Identifying the variables most predictive of cardiovascular disease
+- **Modelling:** Training and evaluating multiple scikit-learn models using accuracy, recall, and ROC-AUC to select the final approach
+
+View the complete workflow with visuals, feature reasoning, and model comparison results:  
+**[Data Science Workflow](data/EDA%20and%20Model%20Comparison/README.md#data-science-workflow)**
+
+### Project Status
+
+The **AutoML pipeline** portion of the project is not currently functional. This feature was experimental. There are no plans to fix or update it.
+However, the **CustomML** page of the web app remains fully functional and can still be used to estimate cardiovascular disease risk.
+
+For historical reference on the AutoML implementation:  
+**[Async ML Pipeline](app/README.md#model-integration-with-flask)**
 
 ## Quick Start
 
 ```bash
 # 1 Clone & install Python dependencies
-git clone https://github.com/wang-yuancheng/AutoMLPipeline.git
-cd AutoMLPipeline
+git clone git@github.com:wang-yuancheng/ml-pipeline.git
+cd ml-pipeline
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2 Start infrastructure
-brew services start rabbitmq
-brew services start redis
+# 2 Set up environment variables
+cp .env.example .env
+# Then edit .env and add:
+# SECRET_KEY="something-super-secret-and-random"
 
-# 3 Start a Celery worker
-celery -A app.celery_app worker --loglevel=info
-
-# 4 Run the Flask dev server
+# 3 Run the development server
 python run.py
+
+# 4 Open the CustomML page in your browser and enter your health measurements
+# to estimate cardiovascular disease risk.
 ```

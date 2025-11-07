@@ -1,35 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Flask App{% endblock %}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
-</head>
-<body>
-  <header>
-    <h1>{% block header %}AUTO ML{% endblock %}</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Flask App{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>
+        {% block header %}THIS FUNCTION IS NOT WORKING AS INTENDED. PLEASE HEAD
+        BACK AND SELECT CUSTOMML INSTEAD{% endblock %}
+      </h1>
+    </header>
     <main>
-    <!-- render flash messages -->
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for msg in messages %}
-            <li>{{ msg }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+      <!-- render flash messages -->
+      {% with messages = get_flashed_messages() %} {% if messages %}
+      <ul class="flashes">
+        {% for msg in messages %}
+        <li>{{ msg }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% endwith %}
 
-    <!-- Allow user to upload dataset -->
-    {% block content %}
-      <form method="POST" action="{{ url_for('auto.auto_upload') }}" enctype="multipart/form-data">
+      <!-- Allow user to upload dataset -->
+      {% block content %}
+      <form
+        method="POST"
+        action="{{ url_for('auto.auto_upload') }}"
+        enctype="multipart/form-data"
+      >
         <label for="file">Upload your dataset (.csv only)</label>
-        <input type="file" id="file" name="file" accept=".csv">
+        <input type="file" id="file" name="file" accept=".csv" />
         <button type="submit">Upload</button>
       </form>
-    {% endblock %}
+      {% endblock %}
     </main>
-</body>
+  </body>
 </html>
