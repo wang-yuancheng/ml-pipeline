@@ -1,10 +1,13 @@
 # Machine Learning Pipeline
 
-This repository contains code and materials for a web app that predicts cardiovascular disease risk based on user input.
+This repository contains materials for a web app that predicts cardiovascular disease risk based on user input.
 
-### Data Science Workflow
+## Tech Stack
+![My Skills](https://skillicons.dev/icons?i=python,flask,redis,sklearn)
 
-The full workflow walks through the end-to-end development of the prediction model, including:
+## Data Science Workflow
+
+This full workflow walks through the development of the prediction model:
 
 - **Dataset Overview:** Understanding the cardiovascular dataset and problem framing
 - **Data Preparation:** Cleaning, transforming, and engineering medically relevant features
@@ -15,7 +18,7 @@ The full workflow walks through the end-to-end development of the prediction mod
 View the complete workflow with visuals, feature reasoning, and model comparison results:  
 **[Data Science Workflow](data/EDA%20and%20Model%20Comparison/README.md#data-science-workflow)**
 
-### Project Status
+## Project Status
 
 The **AutoML pipeline** portion of the project is not currently functional. This feature was experimental. There are no plans to fix or update it.
 However, the **CustomML** page of the web app remains fully functional and can still be used to estimate cardiovascular disease risk.
