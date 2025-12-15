@@ -1,6 +1,6 @@
 # Machine Learning Pipeline
 
-This repository contains code and materials for a web app that predicts cardiovascular disease risk based on user input.
+This repository contains code and materials for a web app that predicts cardiovascular disease risk and provides an automated ML training pipeline for generic datasets.
 
 ### Data Science Workflow
 
@@ -15,13 +15,14 @@ The full workflow walks through the end-to-end development of the prediction mod
 View the complete workflow with visuals, feature reasoning, and model comparison results:  
 **[Data Science Workflow](data/EDA%20and%20Model%20Comparison/README.md#data-science-workflow)**
 
-### Project Status
+### App Features
 
-The **AutoML pipeline** portion of the project is not currently functional. This feature was experimental. There are no plans to fix or update it.
-However, the **CustomML** page of the web app remains fully functional and can still be used to estimate cardiovascular disease risk.
+- **CustomML:** A functional interface using a pre-trained model to estimate cardiovascular disease risk.
+- **AutoML Pipeline:** A fully functional asynchronous training system. Upload any CSV dataset, select a target, and the system will automatically preprocess data, tune hyperparameters, and train a model in the background.  
+  **⚠️ [View Strict Dataset Requirements](#dataset-requirements)**
 
-For historical reference on the AutoML implementation:  
-**[Async ML Pipeline](app/README.md#model-integration-with-flask)**
+For details on the system architecture (Flask + Celery + Redis):  
+**[Async ML Pipeline Architecture](app/README.md#model-integration-with-flask)**
 
 ## Quick Start
 
@@ -37,9 +38,17 @@ cp .env.example .env
 # Then edit .env and add:
 # SECRET_KEY="something-super-secret-and-random"
 
-# 3 Run the development server
+# 3 Start the Background Services
+# Open a new terminal for Redis (Acts as both Broker and Result Backend):
+redis-server
+
+# Open a new terminal for the Celery Worker:
+celery -A app.celery_app worker --loglevel=info
+
+# 4 Run the Web Server
+# Open a new terminal for Flask:
 python run.py
 
-# 4 Open the CustomML page in your browser and enter your health measurements
-# to estimate cardiovascular disease risk.
-```
+# 5 Open localhost:5555 in your browser
+# - Use "CustomML" for the heart disease demo
+# - Use "AutoML" to train on your own CSV files

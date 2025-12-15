@@ -1,4 +1,5 @@
 # Model integration with Flask
+
 ## Base Blueprint (`/`)
 | Method | Path | Description |
 |--------|------|-------------|
@@ -21,9 +22,47 @@
 | `GET`  | `/auto/status/<task_id>` | JSON `{state, ready}` – polled by JS. |
 | `GET`  | `/auto/<job_id>/<target>/<task_id>/predict` | Auto-generated form for the selected features. |
 | `POST` | `/auto/result` | Renders probability from the freshly trained model. |
-## Request → Prediction Flow
 
-Below is an improved sequence diagram that clearly shows each step from uploading a CSV to receiving a prediction. It groups component interactions and labels each arrow more consistently.
+## Dataset Requirements
+
+Strict requirements for datasets uploaded to the AutoML pipeline:
+
+### 1. File Format Requirements
+* **Must be a standard CSV:** The file must use commas (`,`) as separators.
+    * *Will Fail:* Files using semicolons (`;`), tabs (`\t`), or Excel (`.xlsx`) files.
+* **Must have a Header Row:** The first row of the file must contain column names.
+    * *Will Fail:* A file that starts directly with data (e.g., `50, 160, 80...`) because the first row will be treated as the column names.
+* **Column Names:** Column names must be strings. Duplicate column names will likely cause pandas or scikit-learn to crash or behave unpredictably.
+
+### 2. Data Size Requirements
+* **Minimum Rows:** You need at least **10-15 rows** of data.
+    * *Reason:* The code uses `GridSearchCV` with `cv=3` (3-fold cross-validation). If you have fewer than 3 samples per fold, the math breaks.
+* **Minimum Columns:** You need at least **2 columns**: 1 Target + 1 Feature.
+
+### 3. Data Content Requirements
+* **Target Column:**
+    * You must select a target column that actually exists.
+    * The target column **cannot be empty** (all nulls). The code executes `df.dropna(subset=[target])`, so if every row has a missing target, you end up with 0 rows -> Crash.
+* **Feature Correlation (The "Silent Killer"):**
+    * For **Numeric Columns**, the pipeline discards any feature with **less than 1% correlation** (`< 0.01`) to the target.
+    * *Strict Rule:* If your dataset is purely numeric and **none** of the columns are even slightly correlated with the target, the pipeline will crash with `ValueError: No valid features found`.
+    * *Categorical columns are always kept.*
+
+### 4. Data Type Logic (How it decides)
+The system uses "Heuristics" (rules of thumb) to decide how to treat your data. You must understand these to get good results:
+* **The "Rule of 15":**
+    * If a column is **Text**, it is treated as a **Category** (One-Hot Encoded).
+    * If a column is **Number**...
+        * ...and has **< 15 unique values**: It becomes a **Category** (e.g., "Month: 1-12", "Grade: 1-5").
+        * ...and has **>= 15 unique values**: It stays a **Number** (Continuous).
+    * *Why this matters:* If you have a numeric category with 20 classes (e.g., "Zip Code"), the system might mistakenly treat it as a continuous number (like "Age"), which is mathematically wrong for Zip Codes.
+
+### 5. What it CANNOT Do (Limitations)
+* **No Time Series:** It treats every row as independent. It cannot predict "Sales tomorrow" based on "Sales yesterday."
+* **No Unstructured Data:** It cannot handle images, long blocks of text (like reviews), or audio files.
+* **No "Multi-Label" Targets:** You can only predict **one** column at a time.
+
+## Request → Prediction Flow
 
 ```mermaid
 sequenceDiagram
@@ -70,41 +109,3 @@ sequenceDiagram
     Model-->>Flask: probability
     Flask-->>Browser: HTML page displaying probability
     deactivate Flask
-```
-## Summary of the Workflow
-1. **Flask (Web Server)**  
-   - Receives user requests (e.g., file upload, form submission).  
-   - Enqueues long-running tasks in Celery via RabbitMQ.  
-   - Polls Redis for task status and retrieves results.  
-   - Renders HTML pages and returns responses to the browser.
-
-2. **RabbitMQ (Broker)**  
-   - Acts as a FIFO queue for Celery tasks.  
-   - Buffers tasks when workers are busy.  
-   - Ensures reliable delivery of each training job message to a Celery worker.
-
-3. **Celery (Worker Manager)**  
-   - Consumes tasks from RabbitMQ.  
-   - Executes Python functions asynchronously (`train_pipeline_task`, etc.).  
-   - Pushes results and task state updates into Redis.
-
-4. **Redis (Result Backend)**  
-   - Stores each task’s current state (`PENDING`, `STARTED`, `SUCCESS`, `FAILURE`).  
-   - Keeps the return value (e.g., model path and selected features) for Flask to fetch.  
----
-# Full scikit-learn pipeline
-### **Dataset to use: [cardio_train.csv](../data/cardio_train.csv)**
-
-## Full scikit-learn pipeline
-
-```mermaid
-graph TD
-    A["Read raw CSV into a DataFrame"] --> B["Rename columns and drop rows with invalid vitals"]
-    B --> C["Remove outliers and select features based on correlation with the target"]
-    C --> D["Split selected features into numeric vs. categorical"]
-    D --> E["Scale numeric features and one‐hot encode categorical features"]
-    E --> F["Train an MLPClassifier for classification targets or an MLPRegressor for continuous targets."] 
-    F --> G["Perform hyperparameter tuning with GridSearchCV"]
-    G --> H["Build and fit pipeline combining preprocessing and trained model"]
-    H --> I["Saves trained models with joblib under a UUID"]
-```
