@@ -25,42 +25,32 @@
 
 ## Dataset Requirements
 
-Strict requirements for datasets uploaded to the AutoML pipeline:
+The AutoML pipeline requires datasets to meet the following specifications:
 
-### 1. File Format Requirements
-* **Must be a standard CSV:** The file must use commas (`,`) as separators.
-    * *Will Fail:* Files using semicolons (`;`), tabs (`\t`), or Excel (`.xlsx`) files.
-* **Must have a Header Row:** The first row of the file must contain column names.
-    * *Will Fail:* A file that starts directly with data (e.g., `50, 160, 80...`) because the first row will be treated as the column names.
-* **Column Names:** Column names must be strings. Duplicate column names will likely cause pandas or scikit-learn to crash or behave unpredictably.
+### 1. File Format
+* **Format:** Standard CSV (comma-delimited) only. Semicolons, tabs, or Excel files are not supported.
+* **Header:** The first row must contain valid string column names.
+* **Consistency:** Duplicate column names are not permitted.
 
-### 2. Data Size Requirements
-* **Minimum Rows:** You need at least **10-15 rows** of data.
-    * *Reason:* The code uses `GridSearchCV` with `cv=3` (3-fold cross-validation). If you have fewer than 3 samples per fold, the math breaks.
-* **Minimum Columns:** You need at least **2 columns**: 1 Target + 1 Feature.
+### 2. Sizing
+* **Rows:** Minimum of 15 rows required to support 3-fold cross-validation.
+* **Columns:** Minimum of 2 columns required (1 target + at least 1 feature).
 
-### 3. Data Content Requirements
-* **Target Column:**
-    * You must select a target column that actually exists.
-    * The target column **cannot be empty** (all nulls). The code executes `df.dropna(subset=[target])`, so if every row has a missing target, you end up with 0 rows -> Crash.
-* **Feature Correlation (The "Silent Killer"):**
-    * For **Numeric Columns**, the pipeline discards any feature with **less than 1% correlation** (`< 0.01`) to the target.
-    * *Strict Rule:* If your dataset is purely numeric and **none** of the columns are even slightly correlated with the target, the pipeline will crash with `ValueError: No valid features found`.
-    * *Categorical columns are always kept.*
+### 3. Content Constraints
+* **Target Validity:** The selected target column must contain non-null values.
+* **Feature Correlation:** Numeric features with less than 1% (`< 0.01`) correlation to the target are automatically dropped. Training will fail if no features meet this threshold.
+* **Categorical Data:** All categorical columns are retained regardless of correlation.
 
-### 4. Data Type Logic (How it decides)
-The system uses "Heuristics" (rules of thumb) to decide how to treat your data. You must understand these to get good results:
-* **The "Rule of 15":**
-    * If a column is **Text**, it is treated as a **Category** (One-Hot Encoded).
-    * If a column is **Number**...
-        * ...and has **< 15 unique values**: It becomes a **Category** (e.g., "Month: 1-12", "Grade: 1-5").
-        * ...and has **>= 15 unique values**: It stays a **Number** (Continuous).
-    * *Why this matters:* If you have a numeric category with 20 classes (e.g., "Zip Code"), the system might mistakenly treat it as a continuous number (like "Age"), which is mathematically wrong for Zip Codes.
+### 4. Data Type Processing
+The pipeline automatically detects data types based on the following logic:
+* **Text / String:** Treated as **Categorical** (One-Hot Encoded).
+* **Numeric (< 15 unique values):** Treated as **Categorical** (e.g., month, grade).
+* **Numeric (≥ 15 unique values):** Treated as **Continuous** (scaled).
 
-### 5. What it CANNOT Do (Limitations)
-* **No Time Series:** It treats every row as independent. It cannot predict "Sales tomorrow" based on "Sales yesterday."
-* **No Unstructured Data:** It cannot handle images, long blocks of text (like reviews), or audio files.
-* **No "Multi-Label" Targets:** You can only predict **one** column at a time.
+### 5. Limitations
+* **Time Series:** Not supported; rows are treated as independent observations.
+* **Unstructured Data:** Images, audio, or long-form text fields are not supported.
+* **Multi-Label:** Only single-column prediction targets are supported.
 
 ## Request → Prediction Flow
 

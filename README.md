@@ -2,6 +2,9 @@
 
 This repository contains code and materials for a web app that predicts cardiovascular disease risk and provides an automated ML training pipeline for generic datasets.
 
+## Tech Stack
+![My Skills](https://skillicons.dev/icons?i=python,flask,redis,sklearn)
+
 ### Data Science Workflow
 
 The full workflow walks through the end-to-end development of the prediction model, including:
@@ -19,7 +22,7 @@ View the complete workflow with visuals, feature reasoning, and model comparison
 
 - **CustomML:** A functional interface using a pre-trained model to estimate cardiovascular disease risk.
 - **AutoML Pipeline:** A fully functional asynchronous training system. Upload any CSV dataset, select a target, and the system will automatically preprocess data, tune hyperparameters, and train a model in the background.  
-  **⚠️ [View Strict Dataset Requirements](#dataset-requirements)**
+  **⚠️ [View Strict Dataset Requirements](app/README.md#dataset-requirements)**
 
 For details on the system architecture (Flask + Celery + Redis):  
 **[Async ML Pipeline Architecture](app/README.md#model-integration-with-flask)**
