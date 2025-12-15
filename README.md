@@ -5,7 +5,7 @@ This repository contains code and materials for a web app that predicts cardiova
 ## Tech Stack
 ![My Skills](https://skillicons.dev/icons?i=python,flask,redis,sklearn)
 
-### Data Science Workflow
+## Data Science Workflow
 
 The full workflow walks through the end-to-end development of the prediction model, including:
 
